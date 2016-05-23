@@ -11,8 +11,8 @@ PIXI.loader
 
 function ready(){
 	var standing = new PIXI.Sprite(PIXI.Texture.fromFrame("miner8.png"));
-	standing.scale.x = 4;
-	standing.scale.y = 4;
+	standing.scale.x = 1;
+	standing.scale.y = 1;
 	standing.position.x = 50;
 	standing.position.y = 200;
 	stage.addChild(standing);
@@ -25,11 +25,13 @@ function ready(){
 	var walking = new PIXI.extras.MovieClip(frames);
 	walking.scale.x = 1;
 	walking.scale.y = 1;
-	walking.position.x = 200;
-	walking.position.y = 200;
+	walking.position.x = standing.position.x;
+	walking.position.y = standing.position.y;
 	walking.animationSpeed = 0.4;
-	walking.play();
-	stage.addChild(walking);
+	//walking.play();
+	//stage.addChild(walking);
+
+
 
 	//Keyboard controls
 	function keydownEventHandler(e) {
@@ -42,6 +44,7 @@ function ready(){
 			//walking.position.y +=5;
 		//}
 
+		stage.removeChild(standing);
 		if (e.keyCode == 65) { //A key
 			walking.position.x -= 5;
 			
@@ -49,21 +52,38 @@ function ready(){
 				walking.scale.x = -1;
 				walking.position.x += 25;
 			}
+			walking.play();
+			stage.addChild(walking);
 				
 		}
 
-		if (e.keyCode == 68) { //D key
+		else if (e.keyCode == 68) { //D key
 			walking.position.x += 5;
 			if (walking.scale.x == -1 ){
 				walking.scale.x = 1;
 				walking.position.x -= 25;
 			}
+			walking.play();
+			stage.addChild(walking);
 		}
 		
+		else {
+
+			walking.stop();
+			stage.addChild(walking);
+		}
 	}
-
+	
+	function keyupEventHandler(e) {
+		walking.stop();
+		standing.position.x = walking.position.x;
+		standing.position.y = walking.position.y;
+		standing.scale.x = walking.scale.x;
+		stage.addChild(standing);
+		stage.removeChild(walking);
+	}
 	document.addEventListener('keydown', keydownEventHandler);
-
+	document.addEventListener('keyup', keyupEventHandler);
 }
 
 
