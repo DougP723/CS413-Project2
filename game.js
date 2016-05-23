@@ -10,6 +10,54 @@ PIXI.loader
 	.load(ready);
 
 function ready(){
+
+	var dirt = new PIXI.Container();
+	dirt.position.x = 4;
+	dirt.position.y = 4;
+	stage.addChild(dirt);
+
+	var x = 1;
+	var dirt_texture = PIXI.Texture.fromImage("dirt_brick.png");
+	var dirt_sprite = new PIXI.Sprite(dirt_texture);
+
+	var x_count = 0;
+	var y_count = 0;
+	while (y_count < 31){
+		var s = new PIXI.Sprite(dirt_texture);
+ 
+ 		s.position.x = 4 + (y_count*25);
+ 		s.position.y = 4 + (x_count*25);
+ 		dirt.addChild(s);
+ 		x_count++;
+ 		if (x_count == 31){
+ 			x_count = 0;
+ 			y_count++;
+ 		}
+
+	}
+	for(var i=0; i<31; i++) {
+ 	 	var s = new PIXI.Sprite(dirt_texture);
+ 
+ 		s.position.x = 4 + (i*25);
+ 		s.position.y = 4 + (x_count*25);
+ 		dirt.addChild(s);
+
+  	}
+  	/*
+	dirt.addChild(dirt_sprite1);
+	dirt_sprite.anchor.x = 0;
+	dirt_sprite.anchor.y = 0;
+	dirt_sprite.position.x = 4;
+	dirt_sprite.position.y = 4;
+
+	dirt.addChild(dirt_sprite);
+	dirt_sprite.anchor.x = 0;
+	dirt_sprite.anchor.y = 0;
+	dirt_sprite.position.x = 29;
+	dirt_sprite.position.y = 29;
+	*/
+
+	//Initialize miner sprites
 	var standing = new PIXI.Sprite(PIXI.Texture.fromFrame("miner8.png"));
 	standing.scale.x = 1;
 	standing.scale.y = 1;
@@ -82,6 +130,7 @@ function ready(){
 		stage.addChild(standing);
 		stage.removeChild(walking);
 	}
+
 	document.addEventListener('keydown', keydownEventHandler);
 	document.addEventListener('keyup', keyupEventHandler);
 }
