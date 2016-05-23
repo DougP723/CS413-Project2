@@ -44,13 +44,22 @@ function ready(){
 
 		if (e.keyCode == 65) { //A key
 			walking.position.x -= 5;
-			walking.scale.x = -1;	
+			
+			if (walking.scale.x == 1 ){
+				walking.scale.x = -1;
+				walking.position.x += 25;
+			}
+				
 		}
 
 		if (e.keyCode == 68) { //D key
 			walking.position.x += 5;
-			walking.scale.x = 1;
+			if (walking.scale.x == -1 ){
+				walking.scale.x = 1;
+				walking.position.x -= 25;
+			}
 		}
+		
 	}
 
 	document.addEventListener('keydown', keydownEventHandler);
