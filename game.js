@@ -1,35 +1,13 @@
-
-function circle_intersection(c0, c1){
-	var c0x = c0.position.x + c0.radius;
-	var c0y = c0.position.y + c0.radius;
-	var c1x = c1.position.x + c1.radius;
-	var c1y = c1.position.y + c1.radius;
-
-	var cdx = c1x - c0x;
-	var cdy = c1y - c0y;
-	var d = c0.radius + c1.radius;
-	var nd = (cdx * cdx) + (cdy * cdy);
-	if (nd < d*d){
-		return true;
-	}
-	return false;
-}
-
 isIntersecting = function(r1, r2) {
-        return !(r2.x > (r1.x + r1.width)  || 
-           (r2.x + r2.width ) < r1.x || 
-           r2.y > (r1.y + r1.height) ||
-           (r2.y + r2.height) < r1.y);
-}
-
-inTheWay = function(r1, r2){
-	return !(r2.x > (r1.x)  || 
-           (r2.x) < r1.x);
+        return !(r2.x-4 > (r1.x-4 + r1.width-4)  || 
+           (r2.x-4 + r2.width-4 ) < r1.x-4 || 
+           r2.y-4 > (r1.y-4 + r1.height-4) ||
+           (r2.y-4 + r2.height-4) < r1.y-4);
 }
 
 var gameport = document.getElementById("gameport");
 
-var renderer = PIXI.autoDetectRenderer(400, 400, {backgroundColor: 0x808080});
+var renderer = PIXI.autoDetectRenderer(600, 600, {backgroundColor: 0x808080});
 gameport.appendChild(renderer.view);
 
 var stage = new PIXI.Container();
@@ -61,8 +39,6 @@ function ready(){
 	}
 
 	walking = new PIXI.extras.MovieClip(frames);
-	//walking.play();
-	//stage.addChild(walking);
 	miner_container.addChild(walking);
 	walking.scale.x = standing.scale.x;
 	walking.scale.y = standing.scale.y;
@@ -70,31 +46,32 @@ function ready(){
 	walking.position.y = standing.position.y;
 	walking.animationSpeed = 0.3;
 
+	var direction = "Right";
 	function keydownEventHandler(e) {
 
-		//stage.removeChild(standing);
 		miner_container.removeChild(standing);
 		if (e.keyCode == 65) { //A key
-			stage.position.x -= 2;
-			
-			if (walking.scale.x == 0.90 ){
-				//walking.scale.x = -0.90;
-				//miner_container.position.x += 25;
+			stage.position.x += 10;
+			miner_container.position.x -= 2;
+			if (direction == "Right"){
+				walking.scale.x = -0.90;
+				walking.position.x = walking.position.x + 25;
+				direction = "Left"
 			}
 			walking.play();
-			//stage.addChild(walking);
 			miner_container.addChild(walking);
 				
 		}
 
 		if (e.keyCode == 68) { //D key
+			stage.position.x -= 10;
 			miner_container.position.x += 2;
-			if (walking.scale.x == -0.90 ){
+			if (direction == "Left"){
 				walking.scale.x = 0.90;
-				//miner_container.position.x -= 25;
+				walking.position.x = walking.position.x - 25;
+				direction = "Right";
 			}
 			walking.play();
-			//stage.addChild(walking);
 			miner_container.addChild(walking);
 		}
 	}
@@ -105,8 +82,6 @@ function ready(){
 			standing.position.x = walking.position.x;
 			standing.position.y = walking.position.y;
 			standing.scale.x = walking.scale.x;
-			//stage.addChild(standing);
-			//stage.removeChild(walking);
 			miner_container.addChild(standing);
 			miner_container.removeChild(walking);
 		}
@@ -115,8 +90,6 @@ function ready(){
 			standing.position.x = walking.position.x;
 			standing.position.y = walking.position.y;
 			standing.scale.x = walking.scale.x;
-			//stage.addChild(standing);
-			//stage.removeChild(walking);
 			miner_container.addChild(standing);
 			miner_container.removeChild(walking);
 		}
@@ -183,21 +156,33 @@ miner_container.width = 5;
 miner_container.height = 20;
 stage.addChild(miner_container);
 
-
+var exit_container = new PIXI.Container();
+exit_container.position.x = 8 + 600;
+exit_container.position.y = 8 + 600;
+exit_container.width = 25;
+exit_container.height = 25;
+stage.addChild(exit_container);
 var exit_texture = PIXI.Texture.fromImage("exit.png");
 var exit = new PIXI.Sprite(exit_texture);
-exit.position.x = 8 + 600;
-exit.position.y = 8 + 600;
-stage.addChild(exit);
+exit_container.addChild(exit);
 
 var falling = 1;
 var obstructed = 0;
 
-var text = new PIXI.Text('Over here!',{font : '24px Arial', fill : 0xff1010, align : 'center'});
-text.position.x = 8 + 650;
-text.position.y = 8 + 600;
+var text = new PIXI.Text('Nice Job!',{font : '24px Arial', fill : 0xff1010, align : 'center'});
+text.position.x = 8 + 550;
+text.position.y = 8 + 575;
 stage.addChild(text);
 
+var text = new PIXI.Text('This Way! ->',{font : '24px Arial', fill : 0xff1010, align : 'center'});
+text.position.x = 8 + 25;
+text.position.y = 8 + 100;
+stage.addChild(text);
+
+stage.scale.x = 5;
+stage.scale.y = 5;
+stage.position.x = 29;
+stage.position.y = 35;
 
 function animate() {
 	requestAnimationFrame(animate);
@@ -205,25 +190,17 @@ function animate() {
 	for (var j in dirt_blocks){
 		var block = dirt_blocks[j];
 		if (isIntersecting(block, miner_container)){
-			//miner_container.position.y = 0;
 			falling = 0;
-		}
-		else{
-			//miner_container.position.y = 0;
-			//falling = 1;
 		}
 	}
 	if (falling == 1){
 		miner_container.position.y += 1;
+		stage.position.y -= 5;
 	}
 	else{
 		miner_container.position.y += 0;
 		falling = 1;
 	}
-
-	if (isIntersecting(exit, miner_container)){
-			//win game	
-		}
 	
 }
 animate();
