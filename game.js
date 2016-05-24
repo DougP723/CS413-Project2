@@ -29,7 +29,7 @@ inTheWay = function(r1, r2){
 
 var gameport = document.getElementById("gameport");
 
-var renderer = PIXI.autoDetectRenderer(800, 800, {backgroundColor: 0x808080});
+var renderer = PIXI.autoDetectRenderer(400, 400, {backgroundColor: 0x808080});
 gameport.appendChild(renderer.view);
 
 var stage = new PIXI.Container();
@@ -75,7 +75,7 @@ function ready(){
 		//stage.removeChild(standing);
 		miner_container.removeChild(standing);
 		if (e.keyCode == 65) { //A key
-			miner_container.position.x -= 2;
+			stage.position.x -= 2;
 			
 			if (walking.scale.x == 0.90 ){
 				//walking.scale.x = -0.90;
@@ -142,14 +142,15 @@ function ready(){
         while (y_count < 31){
 
 			var dirt_sprite = new PIXI.Sprite(dirt_texture);
-
+			dirt_sprite.radius = 12;
+ 			dirt_sprite.width = 25;
+ 			dirt_sprite.height = 25;
+ 			dirt_sprite.interactive = true;
  		
  			if (test[template_count] == "1"){
  				dirt_sprite.position.x = 4 + (x_count*25);
  				dirt_sprite.position.y = 4 + (y_count*25);
- 				dirt_sprite.radius = 12;
- 				dirt_sprite.width = 25;
- 				dirt_sprite.height = 25;
+ 				
  				dirt.addChild(dirt_sprite);
  				dirt_blocks.push(dirt_sprite);
  			}
@@ -183,9 +184,20 @@ miner_container.height = 20;
 stage.addChild(miner_container);
 
 
+var exit_texture = PIXI.Texture.fromImage("exit.png");
+var exit = new PIXI.Sprite(exit_texture);
+exit.position.x = 8 + 600;
+exit.position.y = 8 + 600;
+stage.addChild(exit);
 
 var falling = 1;
 var obstructed = 0;
+
+var text = new PIXI.Text('Over here!',{font : '24px Arial', fill : 0xff1010, align : 'center'});
+text.position.x = 8 + 650;
+text.position.y = 8 + 600;
+stage.addChild(text);
+
 
 function animate() {
 	requestAnimationFrame(animate);
@@ -209,40 +221,9 @@ function animate() {
 		falling = 1;
 	}
 
-	/*
-	for (var j in dirt_blocks){
-		var block = dirt_blocks[j];
-		if (inTheWay(block, miner_container)){
-			//miner_container.position.y = 0;
-			obstructed = 0;
+	if (isIntersecting(exit, miner_container)){
+			//win game	
 		}
-		else{
-			//miner_container.position.y = 0;
-			obstructed = 1;
-		}
-	}
-	if (obstructed == 1){
-		//miner_container.position.y += 0;
-		function keydownEventHandler(e) {
-
-			if (e.keyCode == 65) { //A key
-				facing = "Left"
-			}
-			if (e.keyCode == 68) {
-					facing = "Right"
-			}
-		}
-		document.addEventListener('keydown', keydownEventHandler);
-
-		if (facing == "Left"){
-			miner_container.position.x = 2;
-		}
-		if (facing == "Right"){
-			miner_container.position.x = 2;
-		}
-		obstructed = 0;
-	}
-	*/
 	
 }
 animate();
