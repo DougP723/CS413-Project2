@@ -22,9 +22,14 @@ isIntersecting = function(r1, r2) {
            (r2.y + r2.height) < r1.y);
 }
 
+inTheWay = function(r1, r2){
+	return !(r2.x > (r1.x)  || 
+           (r2.x) < r1.x);
+}
+
 var gameport = document.getElementById("gameport");
 
-var renderer = PIXI.autoDetectRenderer(800, 800, {backgroundColor: 0x3344ee});
+var renderer = PIXI.autoDetectRenderer(800, 800, {backgroundColor: 0x808080});
 gameport.appendChild(renderer.view);
 
 var stage = new PIXI.Container();
@@ -45,9 +50,9 @@ function ready(){
 	miner_container.addChild(standing);
 	standing.scale.x = 0.90;
 	standing.scale.y = 0.90;
-	standing.position.x = -8;
+	standing.position.x = 0;
 	standing.position.y = 0;
-	standing.radius = 12 * 0.90; //Adjusted to the scale
+	standing.width = 25; //Adjusted to the scale
 
 	//Add the walking animation to the container
 	var frames = [];
@@ -177,16 +182,14 @@ miner_container.width = 5;
 miner_container.height = 20;
 stage.addChild(miner_container);
 
-var exit_texture = PIXI.Texture.fromImage("exit.png");
-var exit = new PIXI.Sprite(exit_texture);
-miner_container.addChild(exit);
+
 
 var falling = 1;
+var obstructed = 0;
 
 function animate() {
 	requestAnimationFrame(animate);
 	renderer.render(stage);
-	falling = 1;
 	for (var j in dirt_blocks){
 		var block = dirt_blocks[j];
 		if (isIntersecting(block, miner_container)){
@@ -203,7 +206,43 @@ function animate() {
 	}
 	else{
 		miner_container.position.y += 0;
+		falling = 1;
 	}
 
+	/*
+	for (var j in dirt_blocks){
+		var block = dirt_blocks[j];
+		if (inTheWay(block, miner_container)){
+			//miner_container.position.y = 0;
+			obstructed = 0;
+		}
+		else{
+			//miner_container.position.y = 0;
+			obstructed = 1;
+		}
+	}
+	if (obstructed == 1){
+		//miner_container.position.y += 0;
+		function keydownEventHandler(e) {
+
+			if (e.keyCode == 65) { //A key
+				facing = "Left"
+			}
+			if (e.keyCode == 68) {
+					facing = "Right"
+			}
+		}
+		document.addEventListener('keydown', keydownEventHandler);
+
+		if (facing == "Left"){
+			miner_container.position.x = 2;
+		}
+		if (facing == "Right"){
+			miner_container.position.x = 2;
+		}
+		obstructed = 0;
+	}
+	*/
+	
 }
 animate();

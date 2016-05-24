@@ -41,12 +41,7 @@ var standing = new PIXI.Sprite(standing_texture);
 
 function ready(){
 
-	
-
-	
-
 	//Initialize miner sprites
-
 	standing.scale.x = 0.90;
 	standing.scale.y = 0.90;
 	standing.position.x = 4+25;
