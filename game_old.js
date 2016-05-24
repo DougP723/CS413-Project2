@@ -1,4 +1,10 @@
 
+function normalize(obj){
+	var len = Math.sqrt((obj.vx * obj.vx) + (obj.vy * obj.vy));
+	obj.vx /= len;
+	obj.vy /= len;
+}
+
 function circle_intersection(c0, c1){
 	var c0x = c0.position.x + c0.radius;
 	var c0y = c0.position.y + c0.radius;
@@ -14,14 +20,6 @@ function circle_intersection(c0, c1){
 	}
 	return false;
 }
-
-isIntersecting = function(r1, r2) {
-        return !(r2.x > (r1.x + r1.width)  || 
-           (r2.x + r2.width ) < r1.x || 
-           r2.y > (r1.y + r1.height) ||
-           (r2.y + r2.height) < r1.y);
-}
-
 var gameport = document.getElementById("gameport");
 
 var renderer = PIXI.autoDetectRenderer(800, 800, {backgroundColor: 0x3344ee});
@@ -29,103 +27,115 @@ gameport.appendChild(renderer.view);
 
 var stage = new PIXI.Container();
 
-PIXI.SCALE_MODES.DEFAULT = PIXI.SCALE_MODES.NEAREST;
+var dirt = new PIXI.Container();
+dirt.position.x = 4;
+dirt.position.y = 4;
+stage.addChild(dirt);
 
 PIXI.loader
 	.add("minerWalk.json")
 	.load(ready);
 
+var standing_texture = PIXI.Texture.fromImage("miner8.png");
+var standing = new PIXI.Sprite(standing_texture);
+
 function ready(){
 
-	//Initialize miner sprites
-	var standing_texture = PIXI.Texture.fromImage("miner8.png");
-	standing = new PIXI.Sprite(standing_texture);
+	
 
-	//stage.addChild(standing);
-	miner_container.addChild(standing);
+	
+
+	//Initialize miner sprites
+
 	standing.scale.x = 0.90;
 	standing.scale.y = 0.90;
-	standing.position.x = -8;
-	standing.position.y = 0;
+	standing.position.x = 4+25;
+	standing.position.y = 10+25;
 	standing.radius = 12 * 0.90; //Adjusted to the scale
+	standing.vx = Math.floor(Math.random()) * 300 + 50;
+	standing.vy = Math.floor(Math.random()) * 300 + 50;
+	normalize(standing);
+	stage.addChild(standing);
 
-	//Add the walking animation to the container
 	var frames = [];
 	for (var i=1; i<=8; i++) {
 		frames.push(PIXI.Texture.fromFrame('miner' + i + '.png'));
 	}
 
-	walking = new PIXI.extras.MovieClip(frames);
-	//walking.play();
-	//stage.addChild(walking);
-	miner_container.addChild(walking);
+	var walking = new PIXI.extras.MovieClip(frames);
 	walking.scale.x = standing.scale.x;
 	walking.scale.y = standing.scale.y;
 	walking.position.x = standing.position.x;
 	walking.position.y = standing.position.y;
 	walking.animationSpeed = 0.3;
+	//walking.play();
+	//stage.addChild(walking);
 
+	//Keyboard controls
 	function keydownEventHandler(e) {
 
-		//stage.removeChild(standing);
-		miner_container.removeChild(standing);
+		//if (e.keyCode == 87) { //W key
+			//walking.position.y -= 5;
+		//}
+
+		//if (e.keyCode == 83) { //S key
+			//walking.position.y +=5;
+		//}
+
+		stage.removeChild(standing);
 		if (e.keyCode == 65) { //A key
-			miner_container.position.x -= 2;
+			walking.position.x -= 2;
 			
 			if (walking.scale.x == 0.90 ){
-				//walking.scale.x = -0.90;
-				//miner_container.position.x += 25;
+				walking.scale.x = -0.90;
+				walking.position.x += 25;
 			}
 			walking.play();
-			//stage.addChild(walking);
-			miner_container.addChild(walking);
+			stage.addChild(walking);
 				
 		}
 
 		if (e.keyCode == 68) { //D key
-			miner_container.position.x += 2;
+			walking.position.x += 2;
 			if (walking.scale.x == -0.90 ){
 				walking.scale.x = 0.90;
-				//miner_container.position.x -= 25;
+				walking.position.x -= 25;
 			}
 			walking.play();
-			//stage.addChild(walking);
-			miner_container.addChild(walking);
+			stage.addChild(walking);
 		}
 	}
-
+	
 	function keyupEventHandler(e) {
 		if (e.keyCode == 65) {
 			walking.stop();
 			standing.position.x = walking.position.x;
 			standing.position.y = walking.position.y;
 			standing.scale.x = walking.scale.x;
-			//stage.addChild(standing);
-			//stage.removeChild(walking);
-			miner_container.addChild(standing);
-			miner_container.removeChild(walking);
+			stage.addChild(standing);
+			stage.removeChild(walking);
 		}
 		if (e.keyCode == 68) {
 			walking.stop();
 			standing.position.x = walking.position.x;
 			standing.position.y = walking.position.y;
 			standing.scale.x = walking.scale.x;
-			//stage.addChild(standing);
-			//stage.removeChild(walking);
-			miner_container.addChild(standing);
-			miner_container.removeChild(walking);
+			stage.addChild(standing);
+			stage.removeChild(walking);
 		}
 
 	}
+
 	document.addEventListener('keydown', keydownEventHandler);
 	document.addEventListener('keyup', keyupEventHandler);
-
+}
+	
 	//This section of code will build the level
 	//The dirt texture is 25x25 and will be spread
 	//In a grid system of size 31x31 dirt bricks
 	var x = 1;
 	var dirt_texture = PIXI.Texture.fromImage("dirt_brick.png");
-
+	var dirt_blocks = [];
 	function assignData(data){
         //do something with the data
         var test = data.split(",");
@@ -143,8 +153,6 @@ function ready(){
  				dirt_sprite.position.x = 4 + (x_count*25);
  				dirt_sprite.position.y = 4 + (y_count*25);
  				dirt_sprite.radius = 12;
- 				dirt_sprite.width = 25;
- 				dirt_sprite.height = 25;
  				dirt.addChild(dirt_sprite);
  				dirt_blocks.push(dirt_sprite);
  			}
@@ -160,50 +168,33 @@ function ready(){
 		}
 		return true;
     }
-	$.get("level1.txt",assignData);
-}
+$.get("level1.txt",assignData);
 
-var dirt = new PIXI.Container();
-dirt.position.x = 4;
-dirt.position.y = 4;
-stage.addChild(dirt);
-var dirt_blocks = [];
+	var exit_container = new PIXI.Container();
+	exit_container.position.x = 50;
+	exit_container.position.y = 200;
+	stage.addChild(exit_container);
 
-var miner_container = new PIXI.Container();
-miner_container.position.x = 29;
-miner_container.position.y = 35;
-miner_container.radius = 12;
-miner_container.width = 5;
-miner_container.height = 20;
-stage.addChild(miner_container);
+	var exit_texture = PIXI.Texture.fromImage("exit.png");
+	var exit = new PIXI.Sprite(exit_texture);
 
-var exit_texture = PIXI.Texture.fromImage("exit.png");
-var exit = new PIXI.Sprite(exit_texture);
-miner_container.addChild(exit);
-
-var falling = 1;
+	exit_container.addChild(exit);
+	exit.anchor.x = 0;
+	exit.anchor.y = 0;
+	exit.position.x = 0;
+	exit.position.y = 0;
 
 function animate() {
 	requestAnimationFrame(animate);
 	renderer.render(stage);
-	falling = 1;
+	var block = dirt_blocks[j];
 	for (var j in dirt_blocks){
-		var block = dirt_blocks[j];
-		if (isIntersecting(block, miner_container)){
-			//miner_container.position.y = 0;
-			falling = 0;
-		}
-		else{
-			//miner_container.position.y = 0;
-			//falling = 1;
-		}
-	}
-	if (falling == 1){
-		miner_container.position.y += 1;
-	}
-	else{
-		miner_container.position.y += 0;
-	}
 
+		if (circle_intersection(block, standing)){
+
+			
+		}
+	}
+	dirt.position.y += 3;
 }
 animate();
